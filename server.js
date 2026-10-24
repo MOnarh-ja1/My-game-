@@ -15,6 +15,7 @@ const io = new Server(server, {
 });
 
 // Раздаем index.html при заходе на сервер через браузер
+app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.static(path.join(__dirname)));
 
 const lobbies = new Map();
