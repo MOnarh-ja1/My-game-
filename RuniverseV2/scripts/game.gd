@@ -465,6 +465,11 @@ func _on_hit() -> void:
 	if rng.randf() < _perk("dodge_chance"):
 		invuln = .7
 		return
+	# Mecha fighter: a 20% chance to absorb an otherwise damaging collision.
+	if rng.randf() < _perk("damage_reduce"):
+		invuln = .8
+		_sound("boost")
+		return
 	if _perk("breaker") > 0 and not breaker_used:
 		breaker_used = true
 		invuln = 1.0
