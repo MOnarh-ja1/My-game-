@@ -273,7 +273,7 @@ func _remove_item(index: int) -> void:
 
 func _spawn_wave() -> void:
 	var first := rng.randi_range(0,2)
-	var kind := ["crate","hurdle","gate"][rng.randi_range(0,2)]
+	var kind: String = ["crate","hurdle","gate"][rng.randi_range(0,2)]
 	var color: Dictionary = worlds[selected_world]
 	_spawn_obstacle(first,kind,-84.0,color)
 	# Two hazards only sometimes, ALWAYS leaves a navigable lane.
