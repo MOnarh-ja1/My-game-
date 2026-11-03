@@ -274,7 +274,7 @@ func _process(delta: float) -> void:
 	if state == "menu" or state == "shop":
 		preview_timer += dt
 		avatar.position.x = lerpf(avatar.position.x,0.0,minf(1,dt*4))
-	camera.position.x = lerpf(camera.position.x,1.6,minf(1,dt*3))
+		camera.position.x = lerpf(camera.position.x,1.6,minf(1,dt*3))
 	else:
 		camera.position.x = lerpf(camera.position.x,2.1+avatar.position.x*.13,minf(1,dt*3.5))
 	camera.look_at(Vector3(avatar.position.x*.30,1.4,-13),Vector3.UP)
