@@ -36,6 +36,11 @@ jobs:
           set -o pipefail
           ./Godot_v4.7.2-stable_linux.x86_64 --headless --path RuniverseV2 --quit-after 40 2>&1 | tee start.log
           if grep -E 'SCRIPT ERROR|Parse Error|Failed to load script|Invalid call|Invalid access' start.log; then exit 1; fi
+      - name: Exercise 3D runner, shop purchase, abilities and world selection
+        run: |
+          set -o pipefail
+          ./Godot_v4.7.2-stable_linux.x86_64 --headless --path RuniverseV2 --script res://scripts/ci_smoke.gd 2>&1 | tee gameplay.log
+          if grep -E 'SCRIPT ERROR|Parse Error|Invalid call|Invalid access|TEST FAILED' gameplay.log; then exit 1; fi
       - name: Export Windows 64-bit game
         run: |
           mkdir -p RuniverseV2/build
@@ -52,7 +57,11 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh release create runiverse-v2.0 RuniverseV2/build/RUNIVERSE.exe \
-            --title 'RUNIVERSE v2.0 — Windows EXE • MgameIO' \
-            --notes 'Official Godot 4.7.2 export. 50 heroes, abilities, premium shop UI, 5 worlds, animated 3D runner.' \
-            --target "$GITHUB_SHA" --latest=false
+          if gh release view runiverse-v2.0 > /dev/null 2>&1; then
+            gh release upload runiverse-v2.0 RuniverseV2/build/RUNIVERSE.exe --clobber
+          else
+            gh release create runiverse-v2.0 RuniverseV2/build/RUNIVERSE.exe \
+              --title 'RUNIVERSE v2.0 — Windows EXE • MgameIO' \
+              --notes 'Official Godot 4.7.2 export. 50 heroes, abilities, premium shop UI, 5 worlds, animated 3D runner.' \
+              --target "$GITHUB_SHA" --latest=false
+          fi
