@@ -1,0 +1,35 @@
+name: Build Windows EXE
+on:
+  push:
+    branches: ['main', 'worlds-runner']
+    paths: ['source/**', 'WorldsRunner/**', '.github/workflows/build-windows.yml']
+  workflow_dispatch:
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.23'
+      - name: Build standalone EXE
+        shell: pwsh
+        run: |
+          if (Test-Path 'WorldsRunner/source') {
+            Set-Location 'WorldsRunner/source'
+          } else {
+            Set-Location 'source'
+          }
+          $env:GOOS='windows'
+          $env:GOARCH='amd64'
+          $env:CGO_ENABLED='0'
+          go vet ./...
+          go build -trimpath -ldflags '-H windowsgui -s -w' -o '../MiryNaBegu.exe' .
+      - name: Upload playable game
+        uses: actions/upload-artifact@v4
+        with:
+          name: MiryNaBegu-Windows-x64
+          path: |
+            MiryNaBegu.exe
+            WorldsRunner/MiryNaBegu.exe
+          if-no-files-found: error
