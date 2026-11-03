@@ -1,0 +1,57 @@
+name: Build Godot Runiverse for Windows
+on:
+  push:
+    branches: [worlds-runner]
+    paths:
+      - 'RuniverseGodot/**'
+      - '.github/workflows/build-godot.yml'
+  workflow_dispatch:
+
+jobs:
+  windows-exe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - name: Checkout game source
+        uses: actions/checkout@v4
+      - name: Download official Godot 4.7.2 Linux editor
+        run: |
+          curl --fail --location --retry 4 --output godot.zip \
+            'https://github.com/godotengine/godot/releases/download/4.7.2-stable/Godot_v4.7.2-stable_linux.x86_64.zip'
+          unzip -q godot.zip
+          chmod +x Godot_v4.7.2-stable_linux.x86_64
+          ./Godot_v4.7.2-stable_linux.x86_64 --version
+      - name: Download official Windows export template
+        run: |
+          curl --fail --location --retry 4 --output templates.tpz \
+            'https://github.com/godotengine/godot/releases/download/4.7.2-stable/Godot_v4.7.2-stable_export_templates.tpz'
+          mkdir -p "$HOME/.local/share/godot/export_templates/4.7.2.stable"
+          unzip -p templates.tpz templates/windows_release_x86_64.exe \
+            > "$HOME/.local/share/godot/export_templates/4.7.2.stable/windows_release_x86_64.exe"
+          test -s "$HOME/.local/share/godot/export_templates/4.7.2.stable/windows_release_x86_64.exe"
+      - name: Import and validate Godot project
+        run: |
+          set -o pipefail
+          ./Godot_v4.7.2-stable_linux.x86_64 --headless \
+            --path RuniverseGodot --editor --import --quit 2>&1 | tee import.log
+          if grep -E 'SCRIPT ERROR|Parse Error|Failed to load script' import.log; then exit 1; fi
+      - name: Launch game headless (startup smoke test)
+        run: |
+          set -o pipefail
+          ./Godot_v4.7.2-stable_linux.x86_64 --headless \
+            --path RuniverseGodot --quit-after 40 2>&1 | tee launch.log
+          if grep -E 'SCRIPT ERROR|Parse Error|Failed to load script' launch.log; then exit 1; fi
+      - name: Build real Godot Windows executable
+        run: |
+          mkdir -p RuniverseGodot/build
+          ./Godot_v4.7.2-stable_linux.x86_64 --headless \
+            --path RuniverseGodot --export-release 'Windows Desktop' RuniverseGodot/build/Runiverse.exe
+          test -s RuniverseGodot/build/Runiverse.exe
+          file RuniverseGodot/build/Runiverse.exe
+      - name: Upload Windows EXE
+        uses: actions/upload-artifact@v4
+        with:
+          name: RUNIVERSE-Godot-Windows-x64
+          path: RuniverseGodot/build/Runiverse.exe
+          if-no-files-found: error
+          retention-days: 30
