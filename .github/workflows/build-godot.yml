@@ -7,6 +7,9 @@ on:
       - '.github/workflows/build-godot.yml'
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   windows-exe:
     runs-on: ubuntu-latest
@@ -55,3 +58,12 @@ jobs:
           path: RuniverseGodot/build/Runiverse.exe
           if-no-files-found: error
           retention-days: 30
+      - name: Publish direct download on GitHub Releases
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create runiverse-v0.1.0 RuniverseGodot/build/Runiverse.exe \
+            --title "RUNIVERSE — Windows (Godot 4.7.2)" \
+            --notes "Windows x64; offline. Extract if needed and launch Runiverse.exe. Five unlockable 3D worlds, coins, animated player, obstacles, and local saves." \
+            --target "$GITHUB_SHA" \
+            --latest=false
