@@ -257,7 +257,7 @@ func _update_game(delta: float) -> void:
 					if state != "running":
 						break
 					_remove_item(i)
-					elif safe:
+				elif safe:
 					_remove_item(i)
 	if is_instance_valid(hud_score):
 		hud_score.text = "ОЧКИ  %06d" % _score()
