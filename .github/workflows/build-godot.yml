@@ -45,7 +45,7 @@ jobs:
         run: |
           mkdir -p RuniverseGodot/build
           ./Godot_v4.7.2-stable_linux.x86_64 --headless \
-            --path RuniverseGodot --export-release 'Windows Desktop' RuniverseGodot/build/Runiverse.exe
+            --path RuniverseGodot --export-release 'Windows Desktop' build/Runiverse.exe
           test -s RuniverseGodot/build/Runiverse.exe
           file RuniverseGodot/build/Runiverse.exe
       - name: Upload Windows EXE
