@@ -1,0 +1,32 @@
+name: DIG AND FIND Windows EXE
+on:
+  push:
+    branches: [dig-and-find-native]
+    paths:
+      - 'dig-and-find/**'
+      - '.github/workflows/dig-and-find-native.yml'
+  workflow_dispatch:
+jobs:
+  build:
+    runs-on: windows-latest
+    defaults:
+      run:
+        working-directory: dig-and-find
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.23'
+      - name: Build Windows EXE
+        shell: pwsh
+        run: |
+          $env:GOOS = "windows"
+          $env:GOARCH = "amd64"
+          $env:CGO_ENABLED = "0"
+          go build -trimpath -ldflags="-s -w -H windowsgui" -o DIG_AND_FIND.exe .
+      - name: Upload Windows game
+        uses: actions/upload-artifact@v4
+        with:
+          name: DIG_AND_FIND_Windows_EXE
+          path: dig-and-find/DIG_AND_FIND.exe
+          if-no-files-found: error
