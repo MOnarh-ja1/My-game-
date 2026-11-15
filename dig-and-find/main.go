@@ -358,6 +358,10 @@ func render() {
 			frame[i] = rgb(int(v&255)/4+8, int(v>>8&255)/4+13, int(v>>16&255)/4+13)
 		}
 	}
+	// Convert RGB colors to Windows DIB pixel order.
+	for i, c := range frame {
+		frame[i] = (c & 0x0000ff00) | ((c & 0x000000ff) << 16) | ((c & 0x00ff0000) >> 16)
+	}
 }
 func drawText(dc uintptr, x, y int, s string, colour uint32) {
 	p, _ := syscall.UTF16PtrFromString(s)
